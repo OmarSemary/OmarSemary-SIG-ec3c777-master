@@ -115,6 +115,7 @@ public class SIG extends JFrame implements ActionListener {
                     invoicesTablePanel.add(invoices_sp);
 
                 // Left Panel Buttons
+
                 JPanel leftPanelButtons = new JPanel();
                 leftPanelButtons.setLayout(new FlowLayout());
                 JButton create = new JButton("Create New Invoice");
@@ -163,7 +164,7 @@ public class SIG extends JFrame implements ActionListener {
                     invoiceData.add(invoiceTotalValue);
 
 
-                // Invoice Items
+        // Invoice Items
                 JPanel invoiceItems = new JPanel();
                 invoiceItems.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "Invoice Items", TitledBorder.LEFT,
@@ -172,16 +173,23 @@ public class SIG extends JFrame implements ActionListener {
                     String[] invoiceItemsColumn ={"No.","Item Name","Item Price","Count","Item Total"};
                     DefaultTableModel model = new DefaultTableModel(invoiceItemsData, invoiceItemsColumn);
                     invoiceItemsTable = new JTable(model);
+        JLabel info = new JLabel("You can insert & remove items from item table");
+        JLabel info2 = new JLabel(" by pressing delete and insert key on keyboard.");
+        invoiceItems.add(info);
+        invoiceItems.add(info2);
                     JScrollPane invoiceItems_sp = new JScrollPane(invoiceItemsTable);
                     invoiceItems.add(invoiceItems_sp);
 
-                // The right Panel
+
+        // The right Panel
         JButton save = new JButton("Save");
                 save.addActionListener(this);
                 save.setActionCommand("SE");
         JButton cancel = new JButton("Cancel");
                 cancel.addActionListener(this);
                 cancel.setActionCommand("CE");
+
+
                 JPanel buttonsPanel = new JPanel();
                 buttonsPanel.add(save);
                 buttonsPanel.add(cancel);
@@ -196,6 +204,29 @@ public class SIG extends JFrame implements ActionListener {
         setLocation(100,100);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setVisible(true);
+
+        invoiceItemsTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                if(e.getKeyCode()==KeyEvent.VK_INSERT){
+                    DefaultTableModel model = (DefaultTableModel) invoiceItemsTable.getModel();
+                    model.addRow(new Object[]{String.valueOf( model.getRowCount() + 1 ), "", "", ""});
+                }else if(e.getKeyCode()==KeyEvent.VK_DELETE){
+                    int lastRow = invoiceItemsTable.getRowCount();
+                    int selectedRow = invoiceItemsTable.getSelectedRow();
+                    DefaultTableModel model = (DefaultTableModel) invoiceItemsTable.getModel();
+                    model.removeRow(selectedRow);
+                    if (lastRow-1 == 0){
+                        model.addRow(new Object[]{String.valueOf( model.getRowCount() + 1 ), "", "", ""});
+                    }else {
+                        invoiceItemsTable.requestFocus();
+                        invoiceItemsTable.setRowSelectionInterval(0,0);
+
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -280,7 +311,6 @@ public class SIG extends JFrame implements ActionListener {
                     } if (invoiceItemsTable.getValueAt(rowCount-1, 3) == "") {
                         throw new NoSuchAttributeException() ;
                     }
-
                     int invoiceNumber = Integer.parseInt( invoiceNumValue.getText() );
                     invoicesArray[invoiceNumber - 1].setInvoiceDate( invoiceDateValue.getText() );
                     invoicesArray[invoiceNumber - 1].setCustomerName( customerNameValue.getText() );
